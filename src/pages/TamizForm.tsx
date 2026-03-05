@@ -7,6 +7,21 @@ import type { TamizPayload } from '@/types'
 
 const DRAFT_KEY = 'tamiz_form_draft_v1'
 const DEBOUNCE_MS = 700
+const REVISORES = ['-', 'FABIAN LA ROSA'] as const
+const APROBADORES = ['-', 'IRMA COAQUIRA'] as const
+
+const EQUIPO_OPTIONS = {
+    balanza_01g_codigo: ['-', 'EQP-0046'],
+    horno_110c_codigo: ['-', 'EQP-0049'],
+    tamiz_no_200_codigo: ['-', 'INS-0199'],
+    tamiz_no_16_codigo: ['-', 'INS-0171'],
+} as const
+
+const withCurrentOption = (value: string | null | undefined, base: readonly string[]) => {
+    const current = (value ?? '').trim()
+    if (!current || base.includes(current)) return base
+    return [...base, current]
+}
 
 const parseNum = (value: string) => {
     if (value.trim() === '') return null
@@ -15,6 +30,13 @@ const parseNum = (value: string) => {
 }
 
 const getCurrentYearShort = () => new Date().getFullYear().toString().slice(-2)
+const formatTodayShortDate = () => {
+    const d = new Date()
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yy = String(d.getFullYear()).slice(-2)
+    return `${dd}/${mm}/${yy}`
+}
 
 const normalizeMuestraCode = (raw: string): string => {
     const value = raw.trim().toUpperCase()
@@ -71,7 +93,7 @@ const getEnsayoId = () => {
 const initialState = (): TamizPayload => ({
     muestra: '',
     numero_ot: '',
-    fecha_ensayo: '',
+    fecha_ensayo: formatTodayShortDate(),
     realizado_por: '',
     procedimiento: '-',
     tamano_maximo_nominal_visual_in: '',
@@ -83,15 +105,15 @@ const initialState = (): TamizPayload => ({
     f_masa_recipiente_muestra_seca_despues_lavado_constante_g: null,
     g_masa_seca_muestra_despues_lavado_g: null,
     h_porcentaje_material_fino_pct: null,
-    balanza_01g_codigo: 'EQP-0046',
-    horno_110c_codigo: 'EQP-0049',
-    tamiz_no_200_codigo: 'INS-0199',
-    tamiz_no_16_codigo: 'INS-0171',
+    balanza_01g_codigo: '-',
+    horno_110c_codigo: '-',
+    tamiz_no_200_codigo: '-',
+    tamiz_no_16_codigo: '-',
     observaciones: '',
     revisado_por: '-',
-    revisado_fecha: '',
+    revisado_fecha: formatTodayShortDate(),
     aprobado_por: '-',
-    aprobado_fecha: '',
+    aprobado_fecha: formatTodayShortDate(),
 })
 
 function preparePayload(payload: TamizPayload): TamizPayload {
@@ -377,19 +399,19 @@ export default function TamizForm() {
                                     <tbody>
                                         <tr>
                                             <td className="border-t border-r border-slate-300 px-2 py-1">Balanza 0.1 g</td>
-                                            <td className="border-t border-slate-300 p-1"><input className={denseInputClass} value={form.balanza_01g_codigo ?? ''} onChange={(e) => setField('balanza_01g_codigo', e.target.value)} autoComplete="off" data-lpignore="true" /></td>
+                                            <td className="border-t border-slate-300 p-1"><select className={denseInputClass} value={form.balanza_01g_codigo ?? '-'} onChange={(e) => setField('balanza_01g_codigo', e.target.value)}>{withCurrentOption(form.balanza_01g_codigo, EQUIPO_OPTIONS.balanza_01g_codigo).map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></td>
                                         </tr>
                                         <tr>
                                             <td className="border-t border-r border-slate-300 px-2 py-1">Horno 110°C</td>
-                                            <td className="border-t border-slate-300 p-1"><input className={denseInputClass} value={form.horno_110c_codigo ?? ''} onChange={(e) => setField('horno_110c_codigo', e.target.value)} autoComplete="off" data-lpignore="true" /></td>
+                                            <td className="border-t border-slate-300 p-1"><select className={denseInputClass} value={form.horno_110c_codigo ?? '-'} onChange={(e) => setField('horno_110c_codigo', e.target.value)}>{withCurrentOption(form.horno_110c_codigo, EQUIPO_OPTIONS.horno_110c_codigo).map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></td>
                                         </tr>
                                         <tr>
                                             <td className="border-t border-r border-slate-300 px-2 py-1">Tamiz No. 200</td>
-                                            <td className="border-t border-slate-300 p-1"><input className={denseInputClass} value={form.tamiz_no_200_codigo ?? ''} onChange={(e) => setField('tamiz_no_200_codigo', e.target.value)} autoComplete="off" data-lpignore="true" /></td>
+                                            <td className="border-t border-slate-300 p-1"><select className={denseInputClass} value={form.tamiz_no_200_codigo ?? '-'} onChange={(e) => setField('tamiz_no_200_codigo', e.target.value)}>{withCurrentOption(form.tamiz_no_200_codigo, EQUIPO_OPTIONS.tamiz_no_200_codigo).map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></td>
                                         </tr>
                                         <tr>
                                             <td className="border-t border-r border-slate-300 px-2 py-1">Tamiz No. 16</td>
-                                            <td className="border-t border-slate-300 p-1"><input className={denseInputClass} value={form.tamiz_no_16_codigo ?? ''} onChange={(e) => setField('tamiz_no_16_codigo', e.target.value)} autoComplete="off" data-lpignore="true" /></td>
+                                            <td className="border-t border-slate-300 p-1"><select className={denseInputClass} value={form.tamiz_no_16_codigo ?? '-'} onChange={(e) => setField('tamiz_no_16_codigo', e.target.value)}>{withCurrentOption(form.tamiz_no_16_codigo, EQUIPO_OPTIONS.tamiz_no_16_codigo).map((opt) => <option key={opt} value={opt}>{opt}</option>)}</select></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -425,14 +447,18 @@ export default function TamizForm() {
                             <div className="overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
                                 <div className="border-b border-slate-300 px-2 py-1 text-sm font-semibold">Revisado</div>
                                 <div className="space-y-2 p-2">
-                                    <input className={denseInputClass} value={form.revisado_por ?? ''} onChange={(e) => setField('revisado_por', e.target.value)} autoComplete="off" data-lpignore="true" />
+                                    <select className={denseInputClass} value={form.revisado_por ?? '-'} onChange={(e) => setField('revisado_por', e.target.value)}>
+                                        {REVISORES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                                    </select>
                                     <input className={denseInputClass} value={form.revisado_fecha ?? ''} onChange={(e) => setField('revisado_fecha', e.target.value)} onBlur={() => setField('revisado_fecha', normalizeFlexibleDate(form.revisado_fecha ?? ''))} autoComplete="off" data-lpignore="true" placeholder="Fecha" />
                                 </div>
                             </div>
                             <div className="overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
                                 <div className="border-b border-slate-300 px-2 py-1 text-sm font-semibold">Aprobado</div>
                                 <div className="space-y-2 p-2">
-                                    <input className={denseInputClass} value={form.aprobado_por ?? ''} onChange={(e) => setField('aprobado_por', e.target.value)} autoComplete="off" data-lpignore="true" />
+                                    <select className={denseInputClass} value={form.aprobado_por ?? '-'} onChange={(e) => setField('aprobado_por', e.target.value)}>
+                                        {APROBADORES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                                    </select>
                                     <input className={denseInputClass} value={form.aprobado_fecha ?? ''} onChange={(e) => setField('aprobado_fecha', e.target.value)} onBlur={() => setField('aprobado_fecha', normalizeFlexibleDate(form.aprobado_fecha ?? ''))} autoComplete="off" data-lpignore="true" placeholder="Fecha" />
                                 </div>
                             </div>
