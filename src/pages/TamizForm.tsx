@@ -78,7 +78,10 @@ const normalizeFlexibleDate = (raw: string): string => {
         return build(d, m, yy)
     }
 
+    if (digits.length === 2) return build(digits[0], digits[1])
+    if (digits.length === 3) return build(digits[0], digits.slice(1, 3))
     if (digits.length === 4) return build(digits.slice(0, 2), digits.slice(2, 4))
+    if (digits.length === 5) return build(digits[0], digits.slice(1, 3), digits.slice(3, 5))
     if (digits.length === 6) return build(digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 6))
     if (digits.length >= 8) return build(digits.slice(0, 2), digits.slice(2, 4), digits.slice(6, 8))
     return value
