@@ -96,7 +96,7 @@ const getEnsayoId = () => {
 const initialState = (): TamizPayload => ({
     muestra: '',
     numero_ot: '',
-    fecha_ensayo: formatTodayShortDate(),
+    fecha_ensayo: '',
     realizado_por: '',
     procedimiento: '-',
     tamano_maximo_nominal_visual_in: '',
