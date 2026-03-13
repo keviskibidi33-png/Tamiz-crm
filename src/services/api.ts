@@ -30,6 +30,12 @@ api.interceptors.response.use(
     },
 )
 
+
+const extractFilename = (contentDisposition?: string): string | undefined => {
+    const match = typeof contentDisposition === 'string' ? contentDisposition.match(/filename="?([^";]+)"?/i) : null
+    return match?.[1]
+}
+
 export async function saveTamizEnsayo(
     payload: TamizPayload,
     ensayoId?: number,
@@ -46,7 +52,7 @@ export async function saveTamizEnsayo(
 export async function saveAndDownloadTamizExcel(
     payload: TamizPayload,
     ensayoId?: number,
-): Promise<{ blob: Blob; ensayoId?: number }> {
+): Promise<{ blob: Blob; ensayoId?: number; filename?: string }> {
     const response = await api.post('/api/tamiz/excel', payload, {
         params: {
             download: true,
@@ -60,6 +66,7 @@ export async function saveAndDownloadTamizExcel(
     return {
         blob: response.data,
         ensayoId: Number.isFinite(parsedId) ? parsedId : undefined,
+        filename: extractFilename(response.headers['content-disposition']),
     }
 }
 
