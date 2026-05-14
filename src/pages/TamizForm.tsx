@@ -468,7 +468,7 @@ export default function TamizForm() {
                             <div className="overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
                                 <div className="border-b border-slate-300 px-2 py-1 text-sm font-semibold">Revisado</div>
                                 <div className="space-y-2 p-2">
-                                    <select className={denseInputClass} value={form.revisado_por ?? '-'} onChange={(e) => setField('revisado_por', e.target.value)}>
+                                    <select className={denseInputClass} value={form.revisado_por ?? '-'} onChange={(e) => { const v = e.target.value; setField('revisado_por', v); if (v !== '-') { setField('revisado_fecha', normalizeFlexibleDate(new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Lima' }))) } }}>
                                         {REVISORES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                                     </select>
                                     <input className={denseInputClass} value={form.revisado_fecha ?? ''} onChange={(e) => setField('revisado_fecha', e.target.value)} onBlur={() => setField('revisado_fecha', normalizeFlexibleDate(form.revisado_fecha ?? ''))} autoComplete="off" data-lpignore="true" placeholder="Fecha" />
@@ -477,7 +477,7 @@ export default function TamizForm() {
                             <div className="overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
                                 <div className="border-b border-slate-300 px-2 py-1 text-sm font-semibold">Aprobado</div>
                                 <div className="space-y-2 p-2">
-                                    <select className={denseInputClass} value={form.aprobado_por ?? '-'} onChange={(e) => setField('aprobado_por', e.target.value)}>
+                                    <select className={denseInputClass} value={form.aprobado_por ?? '-'} onChange={(e) => { const v = e.target.value; setField('aprobado_por', v); if (v !== '-') { setField('aprobado_fecha', normalizeFlexibleDate(new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Lima' }))) } }}>
                                         {APROBADORES.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                                     </select>
                                     <input className={denseInputClass} value={form.aprobado_fecha ?? ''} onChange={(e) => setField('aprobado_fecha', e.target.value)} onBlur={() => setField('aprobado_fecha', normalizeFlexibleDate(form.aprobado_fecha ?? ''))} autoComplete="off" data-lpignore="true" placeholder="Fecha" />
