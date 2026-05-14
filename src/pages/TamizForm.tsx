@@ -26,7 +26,7 @@ const APROBADORES = ['-', 'IRMA COAQUIRA'] as const
 
 const EQUIPO_OPTIONS = {
     balanza_01g_codigo: ['-', 'EQP-0046'],
-    horno_110c_codigo: ['-', 'EQP-0150'],
+    horno_110c_codigo: ['-', 'EQP-0150', 'EQP-0049'],
     tamiz_no_200_codigo: ['-', 'INS-0199'],
     tamiz_no_16_codigo: ['-', 'INS-0171'],
 } as const
