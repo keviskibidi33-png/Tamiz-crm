@@ -259,8 +259,17 @@ export default function TamizForm() {
     }
 
     const handleYearChange = (rawYear: string) => {
-        const cleanedYear = rawYear.replace(/\D/g, '').slice(-2)
-        const nextYear = cleanedYear ? cleanedYear.padStart(2, '0') : new Date().getFullYear().toString().slice(-2)
+        const digits = rawYear.replace(/\D/g, '').slice(-2)
+        setMuestraYear(digits)
+        const { number } = parseMuestraCode(muestraInput, muestraType)
+        const nextYear = digits ? (digits.length === 1 ? `0${digits}` : digits) : new Date().getFullYear().toString().slice(-2)
+        const newCode = buildMuestraCode(number, muestraType, nextYear)
+        setField('muestra', newCode)
+    }
+
+    const handleYearBlur = () => {
+        const digits = muestraYear.replace(/\D/g, '').slice(-2)
+        const nextYear = digits ? (digits.length === 1 ? `0${digits}` : digits) : new Date().getFullYear().toString().slice(-2)
         setMuestraYear(nextYear)
         const { number } = parseMuestraCode(muestraInput, muestraType)
         const newCode = buildMuestraCode(number, muestraType, nextYear)
@@ -418,6 +427,7 @@ export default function TamizForm() {
                                             type="text"
                                             value={muestraYear}
                                             onChange={(e) => handleYearChange(e.target.value)}
+                                            onBlur={handleYearBlur}
                                             maxLength={2}
                                             inputMode="numeric"
                                             aria-label="Año de muestra"
