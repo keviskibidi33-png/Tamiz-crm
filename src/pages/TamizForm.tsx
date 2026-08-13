@@ -332,22 +332,34 @@ export default function TamizForm() {
         setLoading(true)
         try {
             const payload = preparePayload(form)
+            let savedId = ensayoId
+
             if (download) {
-                const { blob, filename } = await saveAndDownloadTamizExcel(payload, ensayoId ?? undefined)
+                const { blob, ensayoId: returnedId, filename } = await saveAndDownloadTamizExcel(payload, ensayoId ?? undefined)
                 const url = URL.createObjectURL(blob)
                 const a = document.createElement('a')
                 a.href = url
                 a.download = filename || `${buildFormatPreview(form.muestra, muestraType, 'TAMIZ')}.xlsx`
                 a.click()
                 URL.revokeObjectURL(url)
+                if (returnedId) savedId = returnedId
             } else {
-                await saveTamizEnsayo(payload, ensayoId ?? undefined)
+                const saved = await saveTamizEnsayo(payload, ensayoId ?? undefined)
+                savedId = saved.id
+            }
+
+            // Preservar ID para ediciones posteriores sin crear duplicados
+            if (savedId && savedId !== ensayoId) {
+                setEnsayoId(savedId)
+                localStorage.removeItem(`${DRAFT_KEY}:new`)
+                const newUrl = new URL(window.location.href)
+                newUrl.searchParams.set('ensayo_id', String(savedId))
+                window.history.replaceState(null, '', newUrl.toString())
             }
             localStorage.removeItem(`${DRAFT_KEY}:${ensayoId ?? 'new'}`)
-            setForm(initialState())
-            setEnsayoId(null)
-            if (window.parent !== window) window.parent.postMessage({ type: 'CLOSE_MODAL' }, '*')
             toast.success(download ? 'Tamiz guardado y descargado.' : 'Tamiz guardado.')
+            // El formulario queda cargado. Solo cierra el modal si está embebido.
+            if (window.parent !== window) window.parent.postMessage({ type: 'ENSAYO_SAVED' }, '*')
         } catch (err) {
             const msg = axios.isAxiosError(err) ? err.response?.data?.detail || 'No se pudo generar Tamiz.' : 'No se pudo generar Tamiz.'
             toast.error(msg)
